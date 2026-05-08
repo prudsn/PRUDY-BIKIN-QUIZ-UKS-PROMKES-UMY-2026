@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Kesehatan Reproduksi Remaja</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  #quiz-wrap, #result-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2rem; }
+  .progress-bar-bg { height: 6px; background: #e0ddd6; border-radius: 99px; margin-bottom: 1.5rem; }
+  .progress-bar-fill { height: 6px; background: #1D9E75; border-radius: 99px; transition: width 0.4s ease; }
+  .q-badge { font-size: 12px; font-weight: 500; color: #888780; background: #f1efe8; padding: 3px 10px; border-radius: 99px; border: 0.5px solid #d3d1c7; display: inline-block; margin-bottom: 1rem; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; line-height: 1.6; margin-bottom: 1.5rem; }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+  .opt-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 12px; padding: 14px 16px; font-size: 15px; color: #1a1a18; text-align: left; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; line-height: 1.5; display: flex; align-items: flex-start; gap: 10px; font-family: inherit; }
+  .opt-btn:hover:not(:disabled) { background: #f1efe8; border-color: #888780; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.99); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-letter { font-size: 12px; font-weight: 500; min-width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .opt-btn.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .opt-btn.wrong { background: #FCEBEB; border-color: #E24B4A; color: #A32D2D; }
+  .opt-btn.reveal-correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .feedback-box { border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem; display: none; border: 0.5px solid; }
+  .feedback-box.correct { background: #EAF3DE; border-color: #97C459; color: #27500A; }
+  .feedback-box.wrong { background: #FCEBEB; border-color: #F09595; color: #791F1F; }
+  .feedback-box.show { display: block; }
+  .feedback-title { font-weight: 500; font-size: 15px; margin-bottom: 6px; }
+  .next-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; display: none; align-items: center; gap: 6px; font-family: inherit; }
+  .next-btn.show { display: inline-flex; }
+  .next-btn:hover { background: #f1efe8; }
+  #result-screen { display: none; }
+  .result-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+  .result-score { font-size: 56px; font-weight: 600; color: #1a1a18; line-height: 1; }
+  .result-label { font-size: 14px; color: #888780; margin-top: 6px; }
+  .result-msg { font-size: 16px; color: #1a1a18; margin-top: 1rem; }
+  .recap-title { font-size: 14px; font-weight: 500; color: #888780; margin-bottom: 12px; }
+  .recap-item { border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
+  .recap-item .ri-q { font-weight: 500; color: #1a1a18; margin-bottom: 6px; }
+  .recap-item .ri-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .ri-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; margin-top: 1px; }
+  .ri-tag.c { background: #C0DD97; color: #27500A; }
+  .ri-tag.w { background: #F7C1C1; color: #791F1F; }
+  .ri-ans { color: #1a1a18; }
+  .restart-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; font-family: inherit; margin-top: 1rem; }
+  .restart-btn:hover { background: #f1efe8; }
+  #intro-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2.5rem 2rem; text-align: center; }
+  .intro-icon { font-size: 48px; margin-bottom: 1.25rem; }
+  .intro-title { font-size: 22px; font-weight: 600; color: #1a1a18; margin-bottom: 0.75rem; }
+  .intro-desc { font-size: 15px; color: #5f5e5a; line-height: 1.7; margin-bottom: 0.75rem; }
+  .intro-meta { display: flex; justify-content: center; gap: 1.5rem; margin: 1.5rem 0; }
+  .intro-meta-item { font-size: 13px; color: #888780; display: flex; align-items: center; gap: 6px; }
+  .intro-meta-item span { font-weight: 500; color: #1a1a18; }
+  .start-btn { background: #1D9E75; border: none; border-radius: 8px; padding: 12px 32px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: inherit; margin-top: 0.5rem; }
+  .start-btn:hover { background: #0F6E56; }
+  .start-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<div id="intro-screen">
+  <div class="intro-icon">🌱</div>
+  <div class="intro-title">Quiz Kesehatan Reproduksi Remaja</div>
+  <div class="intro-desc">Uji pengetahuanmu soal perubahan fisik di masa pubertas, menjaga kebersihan, dan kesehatan reproduksi dengan cara yang sehat.</div>
+  <div class="intro-meta">
+    <div class="intro-meta-item">📝 <span>10 soal</span></div>
+    <div class="intro-meta-item">✅ <span>Pilihan ganda</span></div>
+    <div class="intro-meta-item">💡 <span>Ada penjelasan tiap soal</span></div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">Mulai Kuis →</button>
+</div>
+
+<div id="quiz-wrap" style="display:none;">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog"></div></div>
+  <span class="q-badge" id="q-num">Soal 1 dari 10</span>
+  <div class="q-text" id="q-text"></div>
+  <div class="options" id="options"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="feedback-title" id="fb-title"></div>
+    <div id="fb-body"></div>
+  </div>
+  <button class="next-btn" id="next-btn"></button>
+</div>
+
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-score" id="r-score"></div>
+    <div class="result-label">dari 10 soal benar</div>
+    <div class="result-msg" id="r-msg"></div>
+  </div>
+  <div class="recap-title">Rekap jawaban</div>
+  <div id="recap-list"></div>
+  <button class="restart-btn" onclick="restart()">&#8635; Ulangi quiz</button>
+</div>
+
+<script>
+const questions = [
+  { q: "Seorang siswi baru pertama kali mengalami menstruasi dan merasa takut karena mengira itu tanda sakit. Pernyataan yang paling tepat adalah:", opts: [ { text: "Itu tanda penyakit karena terjadi perdarahan", correct: false, reason: "Menstruasi bukan penyakit. Perdarahan terjadi karena dinding rahim luruh secara alami saat pubertas." }, { text: "Itu proses normal saat pubertas", correct: true, reason: "Menstruasi menandakan tubuh mulai matang. Hormon bekerja menyebabkan siklus bulanan, ini adalah hal yang wajar." }, { text: "Itu terjadi karena kurang menjaga kebersihan", correct: false, reason: "Menstruasi dikendalikan oleh hormon, bukan kebersihan. Namun, kebersihan penting dijaga setelah haid mulai." } ] },
+  { q: "Mengapa pembalut perlu diganti secara teratur saat menstruasi?", opts: [ { text: "Agar lebih nyaman saja", correct: false, reason: "Kenyamanan penting, tapi tujuan utamanya adalah kesehatan." }, { text: "Untuk mencegah bau saja", correct: false, reason: "Bau adalah akibat dari bakteri, fokus utama tetap mencegah bakteri itu berkembang." }, { text: "Untuk mencegah pertumbuhan bakteri dan infeksi", correct: true, reason: "Darah haid di pembalut adalah tempat ideal bakteri berkembang. Jika tidak rutin diganti bisa infeksi." } ] },
+  { q: "Seorang remaja laki-laki mengalami mimpi basah pertama kali dan merasa bingung. Pernyataan yang paling tepat adalah:", opts: [ { text: "Itu tanda penyakit", correct: false, reason: "Ini sama sekali bukan penyakit, tapi tahap perkembangan." }, { text: "Itu hal yang wajar sebagai bagian dari perkembangan tubuh", correct: true, reason: "Saat pubertas, tubuh pria memproduksi sperma. Mimpi basah adalah cara alami tubuh mengeluarkan sperma yang tidak digunakan." }, { text: "Itu terjadi karena melakukan kesalahan", correct: false, reason: "Ini proses biologis alami, bukan akibat dari sebuah kesalahan." } ] },
+  { q: "Mengapa remaja sering mengalami jerawat saat pubertas?", opts: [ { text: "Karena malas mencuci muka saja", correct: false, reason: "Jerawat tidak hanya disebabkan oleh kotoran dari luar tubuh." }, { text: "Karena perubahan hormon yang meningkatkan produksi minyak pada kulit", correct: true, reason: "Hormon meningkat sehingga kelenjar minyak lebih aktif dan menyumbat pori-pori." }, { text: "Karena terkena udara luar", correct: false, reason: "Udara kotor bisa memperparah, tapi faktor utamanya adalah perubahan hormon dari dalam." } ] },
+  { q: "Saat menstruasi, seorang siswi memilih tidak berolahraga sama sekali karena takut berbahaya. Pernyataan yang paling tepat:", opts: [ { text: "Tidak boleh beraktivitas sama sekali", correct: false, reason: "Aktivitas tetap diperbolehkan asal disesuaikan dengan kondisi." }, { text: "Boleh tetap beraktivitas sesuai kondisi tubuh", correct: true, reason: "Aktivitas ringan (stretching, jalan kaki) justru membantu melancarkan peredaran darah dan mengurangi nyeri." }, { text: "Harus tetap olahraga berat", correct: false, reason: "Aktivitas berat tidak dianjurkan jika tubuh merasa terlalu letih." } ] },
+  { q: "Mengapa siklus menstruasi bisa tidak teratur pada awal pubertas?", opts: [ { text: "Karena tubuh belum terbiasa dengan perubahan hormon", correct: true, reason: "Di awal pubertas, hormon belum stabil. Seiring berjalannya waktu siklus akan makin teratur." }, { text: "Karena pasti ada penyakit", correct: false, reason: "Tidak semua siklus yang tidak teratur di awal haid berarti penyakit." }, { text: "Karena kurang makan", correct: false, reason: "Pola makan bisa pengaruh, tapi ketidakteraturan di awal pubertas utamanya karena adaptasi hormon." } ] },
+  { q: "Seorang remaja laki-laki merasa malu karena mengalami mimpi basah. Sikap yang paling tepat adalah:", opts: [ { text: "Menyembunyikan karena itu hal memalukan", correct: false, reason: "Menyembunyikan justru menunjukkan kurangnya pemahaman tentang tubuh sendiri." }, { text: "Memahami bahwa itu bagian normal dari pubertas", correct: true, reason: "Memahami itu proses alami bisa bikin remaja makin percaya diri dan tidak merasa aneh." }, { text: "Menganggap dirinya bermasalah", correct: false, reason: "Ini bukan masalah melainkan perkembangan normal." } ] },
+  { q: "Mengapa penting menjaga kebersihan organ reproduksi saat pubertas?", opts: [ { text: "Hanya untuk kenyamanan", correct: false, reason: "Bukan soal nyaman saja, tapi agar tubuh sehat dari risiko infeksi." }, { text: "Untuk mencegah infeksi dan menjaga kesehatan", correct: true, reason: "Produksi keringat dan cairan meningkat saat pubertas. Jika tak dijaga, rentan terhadap bakteri dan jamur." }, { text: "Tidak terlalu penting", correct: false, reason: "Ini sangat penting sebagai upaya pencegahan penyakit reproduksi." } ] },
+  { q: "Seorang siswi merasa nyeri saat menstruasi. Pernyataan yang paling tepat:", opts: [ { text: "Itu hal yang tidak normal", correct: false, reason: "Nyeri saat haid (ringan-sedang) adalah umum akibat kontraksi rahim." }, { text: "Itu hal yang wajar dan bisa diatasi dengan cara sehat", correct: true, reason: "Bisa dikurangi dengan kompres hangat atau istirahat. Baru dikonsultasikan jika nyeri sangat ekstrem." }, { text: "Harus diabaikan", correct: false, reason: "Tidak boleh diabaikan, tubuh tetap butuh penanganan (istirahat/kompres hangat)." } ] },
+  { q: "Mengapa penting memahami perubahan tubuh saat pubertas?", opts: [ { text: "Agar tidak panik dan bisa menjaga diri", correct: true, reason: "Pengetahuan membuat remaja tenang, tak bingung, dan tahu langkah untuk kebersihan diri." }, { text: "Tidak terlalu penting", correct: false, reason: "Sangat krusial untuk persiapan fisik dan mental." }, { text: "Hanya untuk pengetahuan saja", correct: false, reason: "Pengetahuan itu harus diaplikasikan jadi gaya hidup sehat sehari-hari." } ] }
+];
+
+const letters = ['A','B','C']; let current = 0, score = 0, answered = false, results = []; 
+function startQuiz() { document.getElementById('intro-screen').style.display = 'none'; document.getElementById('quiz-wrap').style.display = 'block'; render(); } 
+function render() { const q = questions[current]; document.getElementById('q-num').textContent = `Soal ${current+1} dari ${questions.length}`; document.getElementById('prog').style.width = `${(current/questions.length)*100}%`; document.getElementById('q-text').textContent = q.q; const optWrap = document.getElementById('options'); optWrap.innerHTML = ''; q.opts.forEach((o, i) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${o.text}</span>`; btn.onclick = () => select(i); optWrap.appendChild(btn); }); document.getElementById('feedback').className = 'feedback-box'; } 
+function select(index) { if (answered) return; answered = true; const q = questions[current]; const isCorrect = q.opts[index].correct; if (isCorrect) score++; const btns = document.querySelectorAll('.opt-btn'); btns[index].classList.add(isCorrect ? 'correct' : 'wrong'); q.opts.forEach((o, i) => { btns[i].disabled = true; if (o.correct && i !== index) { btns[i].classList.add('reveal-correct'); } }); const fb = document.getElementById('feedback'); fb.className = 'feedback-box show ' + (isCorrect ? 'correct' : 'wrong'); document.getElementById('fb-title').textContent = isCorrect ? '✅ Benar' : '❌ Salah'; document.getElementById('fb-body').textContent = q.opts[index].reason; const nextBtn = document.getElementById('next-btn'); nextBtn.textContent = current === questions.length - 1 ? 'Selesai ➔' : 'Selanjutnya ➔'; nextBtn.className = 'next-btn show'; nextBtn.onclick = () => { results.push({ q: q.q, correct: isCorrect, answer: q.opts[index].text, correctAnswer: q.opts.find(o => o.correct).text }); next(); }; } 
+function next() { answered = false; document.getElementById('next-btn').className = 'next-btn'; document.getElementById('feedback').className = 'feedback-box'; current++; if (current < questions.length) { render(); } else { finish(); } } 
+function finish() { document.getElementById('quiz-wrap').style.display = 'none'; document.getElementById('result-screen').style.display = 'block'; document.getElementById('r-score').textContent = score; const pct = (score / questions.length) * 100; let msg = ''; if (pct === 100) msg = 'Sempurna! Kamu sangat memahami isu kesehatan ini.'; else if (pct >= 80) msg = 'Bagus sekali! Pengetahuan kesehatanmu sudah cukup kuat.'; else if (pct >= 60) msg = 'Cukup baik! Masih ada beberapa hal yang perlu diperdalam.'; else if (pct >= 40) msg = 'Lumayan, tapi ayo pelajari lebih lanjut tentang kesehatan remaja!'; else msg = 'Jangan menyerah! Bacalah materi ini kembali dan coba lagi.'; document.getElementById('r-msg').textContent = msg; const recapList = document.getElementById('recap-list'); recapList.innerHTML = ''; results.forEach((r, i) => { const div = document.createElement('div'); div.className = 'recap-item'; div.innerHTML = `<div class="ri-q">Soal ${i+1}: ${r.q}</div><div class="ri-row"><span class="ri-tag ${r.correct ? 'c' : 'w'}">${r.correct ? 'Benar' : 'Salah'}</span><span class="ri-ans">Jawaban kamu: ${r.answer}</span></div>${!r.correct ? `<div class="ri-row"><span class="ri-tag c">Benar</span><span class="ri-ans">${r.correctAnswer}</span></div>` : ''}`; recapList.appendChild(div); }); } 
+function restart() { current = 0; score = 0; answered = false; results = []; document.getElementById('result-screen').style.display = 'none'; document.getElementById('intro-screen').style.display = 'block'; }
+</script>
+</body>
+</html>

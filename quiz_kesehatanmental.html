@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Kesehatan Mental Remaja</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  #quiz-wrap, #result-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2rem; }
+  .progress-bar-bg { height: 6px; background: #e0ddd6; border-radius: 99px; margin-bottom: 1.5rem; }
+  .progress-bar-fill { height: 6px; background: #1D9E75; border-radius: 99px; transition: width 0.4s ease; }
+  .q-badge { font-size: 12px; font-weight: 500; color: #888780; background: #f1efe8; padding: 3px 10px; border-radius: 99px; border: 0.5px solid #d3d1c7; display: inline-block; margin-bottom: 1rem; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; line-height: 1.6; margin-bottom: 1.5rem; }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+  .opt-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 12px; padding: 14px 16px; font-size: 15px; color: #1a1a18; text-align: left; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; line-height: 1.5; display: flex; align-items: flex-start; gap: 10px; font-family: inherit; }
+  .opt-btn:hover:not(:disabled) { background: #f1efe8; border-color: #888780; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.99); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-letter { font-size: 12px; font-weight: 500; min-width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .opt-btn.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .opt-btn.wrong { background: #FCEBEB; border-color: #E24B4A; color: #A32D2D; }
+  .opt-btn.reveal-correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .feedback-box { border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem; display: none; border: 0.5px solid; }
+  .feedback-box.correct { background: #EAF3DE; border-color: #97C459; color: #27500A; }
+  .feedback-box.wrong { background: #FCEBEB; border-color: #F09595; color: #791F1F; }
+  .feedback-box.show { display: block; }
+  .feedback-title { font-weight: 500; font-size: 15px; margin-bottom: 6px; }
+  .next-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; display: none; align-items: center; gap: 6px; font-family: inherit; }
+  .next-btn.show { display: inline-flex; }
+  .next-btn:hover { background: #f1efe8; }
+  #result-screen { display: none; }
+  .result-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+  .result-score { font-size: 56px; font-weight: 600; color: #1a1a18; line-height: 1; }
+  .result-label { font-size: 14px; color: #888780; margin-top: 6px; }
+  .result-msg { font-size: 16px; color: #1a1a18; margin-top: 1rem; }
+  .recap-title { font-size: 14px; font-weight: 500; color: #888780; margin-bottom: 12px; }
+  .recap-item { border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
+  .recap-item .ri-q { font-weight: 500; color: #1a1a18; margin-bottom: 6px; }
+  .recap-item .ri-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .ri-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; margin-top: 1px; }
+  .ri-tag.c { background: #C0DD97; color: #27500A; }
+  .ri-tag.w { background: #F7C1C1; color: #791F1F; }
+  .ri-ans { color: #1a1a18; }
+  .restart-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; font-family: inherit; margin-top: 1rem; }
+  .restart-btn:hover { background: #f1efe8; }
+  #intro-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2.5rem 2rem; text-align: center; }
+  .intro-icon { font-size: 48px; margin-bottom: 1.25rem; }
+  .intro-title { font-size: 22px; font-weight: 600; color: #1a1a18; margin-bottom: 0.75rem; }
+  .intro-desc { font-size: 15px; color: #5f5e5a; line-height: 1.7; margin-bottom: 0.75rem; }
+  .intro-meta { display: flex; justify-content: center; gap: 1.5rem; margin: 1.5rem 0; }
+  .intro-meta-item { font-size: 13px; color: #888780; display: flex; align-items: center; gap: 6px; }
+  .intro-meta-item span { font-weight: 500; color: #1a1a18; }
+  .start-btn { background: #1D9E75; border: none; border-radius: 8px; padding: 12px 32px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: inherit; margin-top: 0.5rem; }
+  .start-btn:hover { background: #0F6E56; }
+  .start-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<div id="intro-screen">
+  <div class="intro-icon">🧠</div>
+  <div class="intro-title">Quiz Kesehatan Mental Remaja</div>
+  <div class="intro-desc">Uji pemahamanmu tentang stres, kecemasan, mengelola emosi, dan cara menjaga kesehatan mental di masa remaja.</div>
+  <div class="intro-meta">
+    <div class="intro-meta-item">📝 <span>10 soal</span></div>
+    <div class="intro-meta-item">✅ <span>Pilihan ganda</span></div>
+    <div class="intro-meta-item">💡 <span>Ada penjelasan tiap soal</span></div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">Mulai Kuis →</button>
+</div>
+
+<div id="quiz-wrap" style="display:none;">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog"></div></div>
+  <span class="q-badge" id="q-num">Soal 1 dari 10</span>
+  <div class="q-text" id="q-text"></div>
+  <div class="options" id="options"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="feedback-title" id="fb-title"></div>
+    <div id="fb-body"></div>
+  </div>
+  <button class="next-btn" id="next-btn"></button>
+</div>
+
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-score" id="r-score"></div>
+    <div class="result-label">dari 10 soal benar</div>
+    <div class="result-msg" id="r-msg"></div>
+  </div>
+  <div class="recap-title">Rekap jawaban</div>
+  <div id="recap-list"></div>
+  <button class="restart-btn" onclick="restart()">&#8635; Ulangi quiz</button>
+</div>
+
+<script>
+const questions = [
+  { q: "Dina sering merasa cemas berlebihan saat menghadapi ujian sampai sulit tidur. Menurutmu, mana pernyataan yang paling tepat?", opts: [ { text: "Itu hal biasa dan tidak perlu diperhatikan", correct: false, reason: "Jika rasa cemas sudah berlebihan sampai mengganggu tidur dan aktivitas sehari-hari, hal ini perlu diperhatikan karena bisa menjadi tanda masalah kesehatan mental." }, { text: "Kecemasan seperti itu bisa menjadi tanda masalah kesehatan mental", correct: true, reason: "Cemas berlebihan yang terjadi terus-menerus dapat menjadi tanda stres berat atau gangguan kecemasan pada remaja." }, { text: "Solusinya cukup dengan bermain HP lebih lama agar lupa", correct: false, reason: "Bermain HP berlebihan justru bisa menambah stres, mengganggu tidur, dan membuat masalah tidak terselesaikan." } ] },
+  { q: "Seseorang yang mengalami bullying di sekolah berisiko mengalami:", opts: [ { text: "Peningkatan rasa percaya diri", correct: false, reason: "Bullying justru sering membuat seseorang merasa takut, rendah diri, malu, dan kehilangan kepercayaan diri." }, { text: "Semangat belajar yang lebih tinggi", correct: false, reason: "Korban bullying biasanya justru merasa tidak nyaman di sekolah dan semangat belajarnya menurun." }, { text: "Gangguan kesehatan mental seperti stres dan depresi", correct: true, reason: "Bullying dapat menyebabkan tekanan emosional yang berat, bahkan bisa memicu depresi dan kecemasan berlebihan." } ] },
+  { q: "Apa yang sebaiknya dilakukan jika seorang teman terlihat sering menyendiri dan murung?", opts: [ { text: "Membiarkannya karena itu urusan pribadinya", correct: false, reason: "Dukungan dari teman sangat penting. Membiarkan seseorang yang sedang kesulitan bisa membuat kondisinya semakin buruk." }, { text: "Mengajak bicara dan mendengarkan dengan baik", correct: true, reason: "Menjadi pendengar yang baik dapat membantu teman merasa didukung dan tidak sendirian menghadapi masalahnya." }, { text: "Menjauhinya agar tidak ikut terbawa suasana", correct: false, reason: "Menjauh justru membuat teman merasa semakin terisolasi dan tidak mendapat dukungan sosial." } ] },
+  { q: "Penggunaan media sosial yang berlebihan dapat menyebabkan:", opts: [ { text: "Stres dan perasaan membandingkan diri dengan orang lain", correct: true, reason: "Media sosial dapat membuat remaja merasa minder karena terlalu sering membandingkan diri dengan kehidupan orang lain." }, { text: "Tidur lebih teratur dan berkualitas", correct: false, reason: "Penggunaan media sosial berlebihan sering membuat seseorang tidur lebih larut dan kualitas tidurnya menurun." }, { text: "Konsentrasi belajar meningkat", correct: false, reason: "Terlalu sering membuka media sosial justru mengganggu fokus dan menurunkan konsentrasi belajar." } ] },
+  { q: "Mengapa bercerita kepada orang terpercaya penting saat sedang stres?", opts: [ { text: "Karena dapat membantu mendapat dukungan dan solusi", correct: true, reason: "Orang terpercaya dapat memberikan dukungan emosional, saran, dan membantu mencari jalan keluar dari masalah." }, { text: "Karena masalah akan langsung hilang", correct: false, reason: "Masalah tidak selalu langsung selesai, tetapi dengan bercerita seseorang bisa merasa lebih lega dan tidak sendirian." }, { text: "Karena semua orang harus mengetahui masalah kita", correct: false, reason: "Tidak semua orang perlu tahu, cukup orang yang dipercaya dan mampu memberikan bantuan yang tepat." } ] },
+  { q: "Salah satu cara menjaga kesehatan mental remaja adalah:", opts: [ { text: "Menyimpan semua masalah sendiri", correct: false, reason: "Memendam masalah terlalu lama dapat membuat stres semakin berat dan berdampak buruk pada kesehatan mental." }, { text: "Menghindari semua bentuk komunikasi", correct: false, reason: "Mengisolasi diri justru dapat meningkatkan rasa kesepian dan memperburuk kondisi mental." }, { text: "Tidur cukup, olahraga, dan menjaga hubungan sosial yang baik", correct: true, reason: "Pola hidup sehat dan hubungan sosial yang positif sangat membantu menjaga kesehatan mental tetap stabil." } ] },
+  { q: "Mengapa tekanan akademik dapat memengaruhi kesehatan mental remaja?", opts: [ { text: "Karena tugas sekolah selalu membuat siswa lebih bahagia", correct: false, reason: "Tugas yang terlalu banyak dan tuntutan prestasi justru bisa menjadi sumber stres jika tidak dikelola dengan baik." }, { text: "Karena beban belajar yang berlebihan dapat menimbulkan stres dan kecemasan", correct: true, reason: "Tekanan akademik yang tinggi dapat membuat remaja merasa tertekan, cemas, dan kehilangan motivasi belajar." }, { text: "Karena nilai jelek tidak pernah berpengaruh pada emosi siswa", correct: false, reason: "Nilai yang buruk sering kali memengaruhi rasa percaya diri dan kondisi emosional remaja." } ] },
+  { q: "Menarik diri dari lingkungan sosial bisa menjadi tanda:", opts: [ { text: "Gangguan kesehatan mental", correct: true, reason: "Seseorang yang tiba-tiba menjauh dari teman dan lingkungan bisa saja sedang mengalami stres atau masalah emosional." }, { text: "Prestasi belajar yang meningkat", correct: false, reason: "Menarik diri dari lingkungan sosial tidak berhubungan langsung dengan peningkatan prestasi belajar." }, { text: "Tubuh yang lebih sehat", correct: false, reason: "Justru isolasi sosial dapat menjadi tanda adanya masalah kesehatan mental yang perlu diperhatikan." } ] },
+  { q: "Gangguan tidur seperti sulit tidur atau tidur berlebihan dapat menjadi tanda:", opts: [ { text: "Kesehatan mental yang sangat baik", correct: false, reason: "Gangguan tidur justru sering menjadi salah satu tanda stres, kecemasan, atau depresi." }, { text: "Masalah kesehatan mental", correct: true, reason: "Perubahan pola tidur sering muncul pada seseorang yang sedang mengalami tekanan emosional atau gangguan mental." }, { text: "Tidak ada masalah karena itu hal biasa", correct: false, reason: "Jika terjadi terus-menerus, gangguan tidur perlu diperhatikan karena dapat memengaruhi kesehatan fisik dan mental." } ] },
+  { q: "Mengapa dukungan keluarga penting bagi kesehatan mental remaja?", opts: [ { text: "Karena keluarga dapat membuat remaja merasa aman dan dihargai", correct: true, reason: "Dukungan keluarga membantu remaja merasa diterima, lebih percaya diri, dan lebih kuat menghadapi masalah." }, { text: "Karena keluarga hanya berperan dalam urusan sekolah", correct: false, reason: "Peran keluarga tidak hanya soal sekolah, tetapi juga dalam membentuk emosi, kepercayaan diri, dan rasa aman." }, { text: "Karena kesehatan mental tidak berhubungan dengan keluarga", correct: false, reason: "Lingkungan keluarga sangat memengaruhi kondisi psikologis dan kesehatan mental remaja." } ] }
+];
+
+const letters = ['A','B','C']; 
+let current = 0, score = 0, answered = false, results = []; 
+
+function startQuiz() { document.getElementById('intro-screen').style.display = 'none'; document.getElementById('quiz-wrap').style.display = 'block'; render(); } 
+function render() { const q = questions[current]; document.getElementById('q-num').textContent = `Soal ${current+1} dari ${questions.length}`; document.getElementById('prog').style.width = `${(current/questions.length)*100}%`; document.getElementById('q-text').textContent = q.q; const optWrap = document.getElementById('options'); optWrap.innerHTML = ''; q.opts.forEach((o, i) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${o.text}</span>`; btn.onclick = () => select(i); optWrap.appendChild(btn); }); document.getElementById('feedback').className = 'feedback-box'; } 
+function select(index) { if (answered) return; answered = true; const q = questions[current]; const isCorrect = q.opts[index].correct; if (isCorrect) score++; const btns = document.querySelectorAll('.opt-btn'); btns[index].classList.add(isCorrect ? 'correct' : 'wrong'); q.opts.forEach((o, i) => { btns[i].disabled = true; if (o.correct && i !== index) { btns[i].classList.add('reveal-correct'); } }); const fb = document.getElementById('feedback'); fb.className = 'feedback-box show ' + (isCorrect ? 'correct' : 'wrong'); document.getElementById('fb-title').textContent = isCorrect ? '✅ Benar' : '❌ Salah'; document.getElementById('fb-body').textContent = q.opts[index].reason; const nextBtn = document.getElementById('next-btn'); nextBtn.textContent = current === questions.length - 1 ? 'Selesai ➔' : 'Selanjutnya ➔'; nextBtn.className = 'next-btn show'; nextBtn.onclick = () => { results.push({ q: q.q, correct: isCorrect, answer: q.opts[index].text, correctAnswer: q.opts.find(o => o.correct).text }); next(); }; } 
+function next() { answered = false; document.getElementById('next-btn').className = 'next-btn'; document.getElementById('feedback').className = 'feedback-box'; current++; if (current < questions.length) { render(); } else { finish(); } } 
+function finish() { document.getElementById('quiz-wrap').style.display = 'none'; document.getElementById('result-screen').style.display = 'block'; document.getElementById('r-score').textContent = score; const pct = (score / questions.length) * 100; let msg = ''; if (pct === 100) msg = 'Sempurna! Kamu sangat memahami isu kesehatan ini.'; else if (pct >= 80) msg = 'Bagus sekali! Pengetahuan kesehatanmu sudah cukup kuat.'; else if (pct >= 60) msg = 'Cukup baik! Masih ada beberapa hal yang perlu diperdalam.'; else if (pct >= 40) msg = 'Lumayan, tapi ayo pelajari lebih lanjut tentang kesehatan remaja!'; else msg = 'Jangan menyerah! Bacalah materi ini kembali dan coba lagi.'; document.getElementById('r-msg').textContent = msg; const recapList = document.getElementById('recap-list'); recapList.innerHTML = ''; results.forEach((r, i) => { const div = document.createElement('div'); div.className = 'recap-item'; div.innerHTML = `<div class="ri-q">Soal ${i+1}: ${r.q}</div><div class="ri-row"><span class="ri-tag ${r.correct ? 'c' : 'w'}">${r.correct ? 'Benar' : 'Salah'}</span><span class="ri-ans">Jawaban kamu: ${r.answer}</span></div>${!r.correct ? `<div class="ri-row"><span class="ri-tag c">Benar</span><span class="ri-ans">${r.correctAnswer}</span></div>` : ''}`; recapList.appendChild(div); }); } 
+function restart() { current = 0; score = 0; answered = false; results = []; document.getElementById('result-screen').style.display = 'none'; document.getElementById('intro-screen').style.display = 'block'; }
+</script>
+</body>
+</html>

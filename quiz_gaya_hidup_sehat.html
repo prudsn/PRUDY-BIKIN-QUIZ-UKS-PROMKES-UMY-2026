@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Gaya Hidup Sehat</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+
+  #quiz-wrap, #result-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2rem; }
+
+  .progress-bar-bg { height: 6px; background: #e0ddd6; border-radius: 99px; margin-bottom: 1.5rem; }
+  .progress-bar-fill { height: 6px; background: #1D9E75; border-radius: 99px; transition: width 0.4s ease; }
+
+  .q-badge { font-size: 12px; font-weight: 500; color: #888780; background: #f1efe8; padding: 3px 10px; border-radius: 99px; border: 0.5px solid #d3d1c7; display: inline-block; margin-bottom: 1rem; }
+
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; line-height: 1.6; margin-bottom: 1.5rem; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+
+  .opt-btn {
+    background: #fff;
+    border: 0.5px solid #b4b2a9;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: #1a1a18;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-family: inherit;
+  }
+  .opt-btn:hover:not(:disabled) { background: #f1efe8; border-color: #888780; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.99); }
+  .opt-btn:disabled { cursor: default; }
+
+  .opt-letter { font-size: 12px; font-weight: 500; min-width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+  .opt-btn.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .opt-btn.wrong { background: #FCEBEB; border-color: #E24B4A; color: #A32D2D; }
+  .opt-btn.reveal-correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+
+  .feedback-box {
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    display: none;
+    border: 0.5px solid;
+  }
+  .feedback-box.correct { background: #EAF3DE; border-color: #97C459; color: #27500A; }
+  .feedback-box.wrong { background: #FCEBEB; border-color: #F09595; color: #791F1F; }
+  .feedback-box.show { display: block; }
+  .feedback-title { font-weight: 500; font-size: 15px; margin-bottom: 6px; }
+
+  .next-btn {
+    background: #fff;
+    border: 0.5px solid #b4b2a9;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a18;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+  }
+  .next-btn.show { display: inline-flex; }
+  .next-btn:hover { background: #f1efe8; }
+
+  #result-screen { display: none; }
+  .result-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+  .result-score { font-size: 56px; font-weight: 600; color: #1a1a18; line-height: 1; }
+  .result-label { font-size: 14px; color: #888780; margin-top: 6px; }
+  .result-msg { font-size: 16px; color: #1a1a18; margin-top: 1rem; }
+
+  .recap-title { font-size: 14px; font-weight: 500; color: #888780; margin-bottom: 12px; }
+  .recap-item { border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
+  .recap-item .ri-q { font-weight: 500; color: #1a1a18; margin-bottom: 6px; }
+  .recap-item .ri-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .ri-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; margin-top: 1px; }
+  .ri-tag.c { background: #C0DD97; color: #27500A; }
+  .ri-tag.w { background: #F7C1C1; color: #791F1F; }
+  .ri-ans { color: #1a1a18; }
+
+  .restart-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; font-family: inherit; margin-top: 1rem; }
+  .restart-btn:hover { background: #f1efe8; }
+
+  #intro-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2.5rem 2rem; text-align: center; }
+  .intro-icon { font-size: 48px; margin-bottom: 1.25rem; }
+  .intro-title { font-size: 22px; font-weight: 600; color: #1a1a18; margin-bottom: 0.75rem; }
+  .intro-desc { font-size: 15px; color: #5f5e5a; line-height: 1.7; margin-bottom: 0.75rem; }
+  .intro-meta { display: flex; justify-content: center; gap: 1.5rem; margin: 1.5rem 0; }
+  .intro-meta-item { font-size: 13px; color: #888780; display: flex; align-items: center; gap: 6px; }
+  .intro-meta-item span { font-weight: 500; color: #1a1a18; }
+  .start-btn { background: #1D9E75; border: none; border-radius: 8px; padding: 12px 32px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: inherit; margin-top: 0.5rem; }
+  .start-btn:hover { background: #0F6E56; }
+  .start-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<div id="intro-screen">
+  <div class="intro-icon">🏃</div>
+  <div class="intro-title">Quiz Gaya Hidup Sehat</div>
+  <div class="intro-desc">Uji pemahamanmu tentang kebiasaan sehari-hari — dari pola makan, tidur, olahraga, hingga kebiasaan kecil yang memengaruhi kesehatanmu.</div>
+  <div class="intro-meta">
+    <div class="intro-meta-item">📝 <span>10 soal</span></div>
+    <div class="intro-meta-item">✅ <span>Pilihan ganda</span></div>
+    <div class="intro-meta-item">💡 <span>Ada penjelasan tiap soal</span></div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">Mulai Kuis →</button>
+</div>
+
+<div id="quiz-wrap" style="display:none;">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog"></div></div>
+  <span class="q-badge" id="q-num">Soal 1 dari 10</span>
+  <div class="q-text" id="q-text"></div>
+  <div class="options" id="options"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="feedback-title" id="fb-title"></div>
+    <div id="fb-body"></div>
+  </div>
+  <button class="next-btn" id="next-btn"></button>
+</div>
+
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-score" id="r-score"></div>
+    <div class="result-label">dari 10 soal benar</div>
+    <div class="result-msg" id="r-msg"></div>
+  </div>
+  <div class="recap-title">Rekap jawaban</div>
+  <div id="recap-list"></div>
+  <button class="restart-btn" onclick="restart()">&#8635; Ulangi quiz</button>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Arga rutin olahraga setiap minggu, lalu hampir selalu membeli minuman manis kemasan setelahnya karena merasa bisa mengganti energi. Kebiasaan ini paling menggambarkan kondisi apa?",
+    opts: [
+      { text: "Arga mendapatkan manfaat dari olahraga, tetapi kebiasaan minum manisnya tetap dapat menimbulkan risiko bagi kesehatan", correct: true, reason: "Olahraga memang membantu menjaga kebugaran, namun manfaatnya tidak sepenuhnya menetralisir pola konsumsi yang kurang sehat. Konsumsi gula berlebih secara terus-menerus tetap berdampak pada kesehatan jangka panjang." },
+      { text: "Tubuh Arga tetap mendapatkan energi yang dibutuhkan sehingga kebiasaan tersebut tidak menimbulkan masalah berarti", correct: false, reason: "Meskipun tubuh butuh energi setelah olahraga, jika sumbernya terus-menerus dari minuman tinggi gula sederhana, hal ini dapat menyebabkan asupan gula berlebih dan meningkatkan risiko resistensi insulin dalam jangka panjang." },
+      { text: "Kebiasaan tersebut aman dilakukan selama tidak terjadi kenaikan berat badan yang signifikan", correct: false, reason: "Berat badan bukan satu-satunya indikator kesehatan. Seseorang bisa berat badan normal tapi tetap mengalami gangguan metabolisme seperti kadar gula darah tidak stabil." }
+    ]
+  },
+  {
+    q: "Setiap pagi Nisa langsung berangkat sekolah tanpa sarapan karena tidak merasa lapar. Ia merasa tubuhnya tetap kuat menjalani aktivitas. Apa yang paling mungkin terjadi?",
+    opts: [
+      { text: "Tubuh Nisa berisiko kekurangan energi yang dapat memengaruhi konsentrasi dan aktivitas di pagi hari", correct: true, reason: "Sarapan berperan penting menjaga kadar gula darah tetap stabil setelah semalaman tidak makan. Tanpa asupan pagi hari, tubuh bisa kekurangan energi sehingga berdampak pada fokus, daya ingat, dan performa belajar." },
+      { text: "Tubuh Nisa tetap dapat bekerja secara optimal karena tidak ada rasa lapar yang muncul", correct: false, reason: "Rasa lapar tidak selalu menjadi indikator utama kebutuhan energi. Jika terbiasa tidak sarapan, tubuh bisa beradaptasi sehingga sinyal lapar berkurang — bukan berarti kebutuhan energinya sudah terpenuhi." },
+      { text: "Tubuh akan menyesuaikan diri sehingga tidak menimbulkan dampak yang berarti dalam jangka panjang", correct: false, reason: "Meskipun tubuh bisa beradaptasi, kebiasaan melewatkan sarapan dapat memengaruhi pola makan berikutnya, seperti makan berlebihan di siang hari atau memilih makanan kurang sehat." }
+    ]
+  },
+  {
+    q: "Danu hampir setiap hari memilih minuman berlabel 'rendah gula' karena merasa itu pilihan yang lebih aman. Jika dilihat dalam jangka panjang, kebiasaan ini cenderung mengarah ke apa?",
+    opts: [
+      { text: "Pola konsumsi yang tetap aman karena kadar gula dalam minuman sudah dikurangi", correct: false, reason: "Label 'rendah gula' hanya menunjukkan kandungannya lebih sedikit dibanding produk sejenis, bukan berarti bebas gula. Jika dikonsumsi setiap hari, jumlah gula tetap bisa terakumulasi dan memberi dampak pada tubuh." },
+      { text: "Kebiasaan yang tetap berpotensi menimbulkan dampak jika tidak dibatasi jumlah konsumsinya", correct: true, reason: "Konsumsi minuman manis meskipun rendah gula tetap dapat membentuk kebiasaan menyukai rasa manis. Jika dilakukan terus-menerus, hal ini bisa meningkatkan asupan gula harian tanpa disadari." },
+      { text: "Pilihan terbaik untuk kebutuhan cairan harian dibandingkan air putih biasa", correct: false, reason: "Air putih tetap menjadi pilihan utama karena tidak mengandung gula maupun zat tambahan lainnya, sehingga lebih aman dikonsumsi setiap hari." }
+    ]
+  },
+  {
+    q: "Sari sering tidur larut saat hari sekolah, lalu tidur lebih lama di akhir pekan untuk mengganti kekurangannya. Pola seperti ini menunjukkan apa?",
+    opts: [
+      { text: "Kebutuhan tidur tetap terpenuhi karena jumlah total jam tidurnya cukup", correct: false, reason: "Tidur tidak hanya dinilai dari jumlah jam, tetapi juga keteraturan waktunya. Pola tidur yang berubah-ubah dapat mengganggu ritme biologis tubuh." },
+      { text: "Adanya pola tidur yang tidak teratur yang dapat berdampak pada kesehatan tubuh", correct: true, reason: "Ketidakteraturan waktu tidur dapat memengaruhi kualitas istirahat, konsentrasi, serta keseimbangan hormon dalam tubuh. Akibatnya seseorang bisa tetap merasa lelah meskipun sudah tidur cukup lama." },
+      { text: "Tidak menjadi masalah selama tidak terasa mengantuk pada siang hari", correct: false, reason: "Dampak kurang tidur tidak selalu langsung terasa. Dalam jangka panjang, pola tidur yang tidak teratur dapat memengaruhi kesehatan fisik dan mental." }
+    ]
+  },
+  {
+    q: "Riko jarang berolahraga karena merasa tubuhnya masih kuat dan tidak mudah lelah. Apa yang perlu dipahami dari kondisi tersebut?",
+    opts: [
+      { text: "Kondisi tubuhnya sudah cukup baik sehingga tidak memerlukan aktivitas fisik tambahan", correct: false, reason: "Rasa kuat atau tidak mudah lelah bukan satu-satunya indikator kebugaran. Tanpa aktivitas fisik yang cukup, fungsi jantung, paru-paru, dan otot tetap bisa menurun secara perlahan." },
+      { text: "Olahraga baru diperlukan saat tubuh mulai menunjukkan tanda kelelahan", correct: false, reason: "Olahraga sebaiknya dilakukan secara rutin sebagai bentuk pencegahan, bukan menunggu munculnya keluhan." },
+      { text: "Aktivitas fisik tetap diperlukan untuk menjaga fungsi tubuh meskipun tidak ada keluhan", correct: true, reason: "Olahraga berperan menjaga kesehatan tubuh secara menyeluruh, termasuk meningkatkan daya tahan, menjaga berat badan, dan mencegah penyakit di masa depan." }
+    ]
+  },
+  {
+    q: "Lina lebih sering makan camilan sedikit-sedikit sepanjang hari dibanding makan utama karena merasa lebih nyaman. Dari kebutuhan tubuh, kebiasaan ini menunjukkan apa?",
+    opts: [
+      { text: "Pola makan yang lebih baik karena tidak makan dalam jumlah besar sekaligus", correct: false, reason: "Makan dalam porsi kecil bisa baik jika komposisinya seimbang. Namun camilan sering kali tidak mengandung nutrisi lengkap yang dibutuhkan tubuh." },
+      { text: "Adanya kemungkinan kebutuhan nutrisi tidak terpenuhi secara optimal", correct: true, reason: "Tubuh membutuhkan berbagai zat gizi seperti karbohidrat, protein, lemak, vitamin, dan mineral dalam jumlah seimbang. Jika hanya mengandalkan camilan, kebutuhan tersebut bisa tidak terpenuhi." },
+      { text: "Tidak menjadi masalah selama rasa lapar tidak muncul sepanjang hari", correct: false, reason: "Rasa kenyang tidak selalu menunjukkan bahwa tubuh sudah mendapatkan nutrisi yang cukup dan seimbang." }
+    ]
+  },
+  {
+    q: "Bayu jarang minum air putih karena hampir tidak pernah merasa haus, terutama saat tidak banyak bergerak. Hal apa yang perlu diperhatikan dari kebiasaan ini?",
+    opts: [
+      { text: "Tubuh sudah memberikan sinyal yang cukup melalui rasa haus", correct: false, reason: "Rasa haus sering kali muncul saat tubuh sudah mulai mengalami kekurangan cairan, sehingga bukan indikator awal yang paling akurat." },
+      { text: "Kebutuhan cairan tubuh tetap harus dipenuhi secara teratur meskipun tidak merasa haus", correct: true, reason: "Air berperan penting dalam berbagai fungsi tubuh seperti sirkulasi darah, pencernaan, dan pengaturan suhu tubuh. Oleh karena itu, konsumsi air perlu dijaga secara rutin." },
+      { text: "Minum air hanya diperlukan saat melakukan aktivitas berat", correct: false, reason: "Kebutuhan cairan tetap ada dalam kondisi normal karena tubuh terus kehilangan cairan melalui napas, urin, dan aktivitas sehari-hari." }
+    ]
+  },
+  {
+    q: "Tia sering merasa sulit fokus saat belajar meskipun sudah makan. Ia berpikir perlu menambah makanan manis agar lebih fokus. Apa yang paling mungkin terjadi?",
+    opts: [
+      { text: "Konsentrasi dapat dipengaruhi oleh jenis dan keseimbangan makanan yang dikonsumsi", correct: true, reason: "Makanan dengan komposisi tidak seimbang — misalnya terlalu tinggi gula dan rendah protein atau serat — dapat menyebabkan energi cepat naik lalu turun, sehingga memengaruhi konsentrasi." },
+      { text: "Tubuh memerlukan jumlah makanan yang lebih banyak agar dapat bekerja optimal", correct: false, reason: "Banyaknya makanan tidak selalu meningkatkan kualitas energi. Yang lebih penting adalah keseimbangan nutrisi dalam makanan tersebut." },
+      { text: "Penambahan makanan manis akan membantu meningkatkan fokus secara stabil", correct: false, reason: "Gula sederhana memang dapat memberikan energi cepat, tetapi efeknya tidak bertahan lama dan justru dapat menyebabkan penurunan energi setelahnya." }
+    ]
+  },
+  {
+    q: "Edo merasa dirinya sehat karena jarang sakit, sehingga tidak terlalu memperhatikan pola hidupnya. Pandangan ini paling tepat digambarkan sebagai apa?",
+    opts: [
+      { text: "Pemahaman bahwa sehat cukup dilihat dari tidak adanya penyakit", correct: false, reason: "Kesehatan tidak hanya berarti bebas dari penyakit, tetapi juga mencakup kondisi tubuh yang berfungsi secara optimal, baik secara fisik maupun mental." },
+      { text: "Cara yang tepat dalam menjaga kesehatan selama belum ada keluhan", correct: false, reason: "Menjaga kesehatan seharusnya dilakukan sebagai upaya pencegahan, bukan menunggu munculnya masalah." },
+      { text: "Pemahaman yang belum lengkap karena kesehatan juga dipengaruhi oleh kebiasaan sehari-hari", correct: true, reason: "Gaya hidup seperti pola makan, aktivitas fisik, dan istirahat sangat berperan dalam menentukan kesehatan jangka panjang — bukan hanya dilihat dari ada tidaknya penyakit." }
+    ]
+  },
+  {
+    q: "Nanda menggunakan earphone setiap hari dengan volume sedang, tetapi dalam waktu lama. Ia merasa aman karena tidak pernah merasakan sakit. Kondisi ini menunjukkan apa?",
+    opts: [
+      { text: "Adanya risiko gangguan pendengaran yang muncul secara perlahan", correct: true, reason: "Paparan suara dalam jangka waktu lama dapat merusak sel-sel di telinga secara bertahap, meskipun tidak langsung terasa sakit." },
+      { text: "Penggunaan masih aman karena volume suara tidak terlalu keras", correct: false, reason: "Selain volume, durasi penggunaan juga memengaruhi kesehatan pendengaran. Paparan suara dalam waktu lama tetap dapat berdampak meskipun volumenya sedang." },
+      { text: "Tidak ada dampak selama tidak muncul rasa sakit atau gangguan", correct: false, reason: "Kerusakan pendengaran sering kali terjadi tanpa gejala awal yang jelas, sehingga perlu dicegah sejak dini sebelum dampaknya dirasakan." }
+    ]
+  }
+];
+
+const letters = ['A','B','C'];
+let current = 0, score = 0, answered = false, results = [];
+
+function startQuiz() {
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('quiz-wrap').style.display = 'block';
+  render();
+}
+
+function render() {
+  const q = questions[current];
+  document.getElementById('q-num').textContent = `Soal ${current+1} dari ${questions.length}`;
+  document.getElementById('prog').style.width = `${(current/questions.length)*100}%`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const optWrap = document.getElementById('options');
+  optWrap.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${o.text}</span>`;
+    btn.onclick = () => select(i);
+    optWrap.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback-box';
+  document.getElementById('next-btn').className = 'next-btn';
+  answered = false;
+}
+
+function select(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const chosen = q.opts[idx];
+  const btns = document.querySelectorAll('.opt-btn');
+
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === idx) btn.classList.add(chosen.correct ? 'correct' : 'wrong');
+    else if (q.opts[i].correct) btn.classList.add('reveal-correct');
+  });
+
+  const fb = document.getElementById('feedback');
+  const fbTitle = document.getElementById('fb-title');
+  const fbBody = document.getElementById('fb-body');
+
+  if (chosen.correct) {
+    score++;
+    fb.className = 'feedback-box correct show';
+    fbTitle.textContent = '✓ Jawaban benar!';
+    fbBody.textContent = chosen.reason;
+    results.push({ q: q.q, correct: true, answer: chosen.text, correctAnswer: chosen.text });
+  } else {
+    const correctOpt = q.opts.find(o => o.correct);
+    fb.className = 'feedback-box wrong show';
+    fbTitle.textContent = '✗ Jawaban salah';
+    fbBody.innerHTML = `<strong>Penjelasan:</strong> ${chosen.reason}<br><br><strong>Jawaban yang benar:</strong> ${correctOpt.text}`;
+    results.push({ q: q.q, correct: false, answer: chosen.text, correctAnswer: correctOpt.text });
+  }
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn show';
+  nextBtn.textContent = current < questions.length - 1 ? 'Lanjut ke soal berikutnya →' : 'Lihat hasil →';
+}
+
+document.getElementById('next-btn').onclick = function() {
+  current++;
+  if (current < questions.length) render();
+  else showResult();
+};
+
+function showResult() {
+  document.getElementById('quiz-wrap').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'block';
+
+  document.getElementById('r-score').textContent = score;
+  const pct = (score / questions.length) * 100;
+  let msg = '';
+  if (pct === 100) msg = 'Sempurna! Kamu sangat memahami isu kesehatan ini.';
+  else if (pct >= 80) msg = 'Bagus sekali! Pengetahuan kesehatanmu sudah cukup kuat.';
+  else if (pct >= 60) msg = 'Cukup baik! Masih ada beberapa hal yang perlu diperdalam.';
+  else if (pct >= 40) msg = 'Lumayan, tapi ayo pelajari lebih lanjut tentang kesehatan remaja!';
+  else msg = 'Jangan menyerah! Bacalah materi ini kembali dan coba lagi.';
+  document.getElementById('r-msg').textContent = msg;
+
+  const recapList = document.getElementById('recap-list');
+  recapList.innerHTML = '';
+  results.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'recap-item';
+    div.innerHTML = `
+      <div class="ri-q">Soal ${i+1}: ${r.q}</div>
+      <div class="ri-row">
+        <span class="ri-tag ${r.correct ? 'c' : 'w'}">${r.correct ? 'Benar' : 'Salah'}</span>
+        <span class="ri-ans">Jawaban kamu: ${r.answer}</span>
+      </div>
+      ${!r.correct ? `<div class="ri-row"><span class="ri-tag c">Benar</span><span class="ri-ans">${r.correctAnswer}</span></div>` : ''}
+    `;
+    recapList.appendChild(div);
+  });
+}
+
+function restart() {
+  current = 0; score = 0; results = [];
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-wrap').style.display = 'none';
+  document.getElementById('intro-screen').style.display = 'block';
+}
+</script>
+</body>
+</html>
