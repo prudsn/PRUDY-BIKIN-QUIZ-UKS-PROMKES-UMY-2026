@@ -1,26 +1,25 @@
 # PRUDY-BIKIN-QUIZ-UKS-PROMKES-UMY-2026
-# 🏥 Website Edukasi & Manajemen UKS: Dari Minimal Menuju Standar
+# Website Edukasi dan Manajemen UKS: Stratifikasi Tingkat Standar
 
-## 📌 Deskripsi Proyek
-Repositori ini berisi kode sumber (*source code*) untuk fitur kuis interaktif dan komponen pendukung web lainnya yang diintegrasikan ke dalam platform Google Sites. Proyek website ini dirancang khusus sebagai media edukasi dan panduan manajemen Usaha Kesehatan Sekolah (UKS) untuk tingkat Sekolah Menengah Pertama (SMP). Tujuannya adalah untuk membantu sekolah, guru, dan siswa dalam meningkatkan kualitas serta fasilitas UKS dari tingkat minimal menuju tingkat standar yang ideal.
+## Deskripsi Proyek
+Repositori ini merupakan bagian dari pengembangan media informasi digital yang diintegrasikan melalui platform Google Sites. Proyek ini difokuskan pada manajemen Usaha Kesehatan Sekolah (UKS), khususnya dalam memfasilitasi proses stratifikasi UKS dari tingkat minimal menuju tingkat standar. Modul kuis interaktif yang terdapat dalam repositori ini dirancang untuk meningkatkan pemahaman siswa dan tenaga pendidik mengenai pemahaman kesehatan dasar manusia.
 
-## 🎓 Informasi Akademik
-Proyek website ini dikembangkan sebagai bagian dari pemenuhan tugas praktik klinik dan penugasan dari dosen pembimbing dalam mengembangkan media promosi kesehatan berbasis digital.
+## Informasi Akademik
+Proyek ini dikembangkan dalam rangka pemenuhan tugas mata kuliah Praktik Klinik Promosi Kesehatan (PK PromKes).
 
-* **Mata Kuliah:** Praktik Klinik Promosi Kesehatan (PK PromKes)
-* **Disusun Oleh:** Prudysana Jatimikov
+* **Penyusun:** Prudysana Jatimikov
 * **Program Studi:** S1 Ilmu Keperawatan
 * **Institusi:** Universitas Muhammadiyah Yogyakarta (UMY)
+* **Topik Penugasan:** Inovasi Media Promosi Kesehatan Berbasis Digital dalam Lingkungan Sekolah
 
-## ✨ Fitur Utama
-1. **Kuis Interaktif Edukatif:** Modul evaluasi pengetahuan kesehatan (seperti Penyakit Tidak Menular/PTM) yang interaktif, dilengkapi dengan *feedback* atau penjelasan logis secara *real-time* untuk setiap jawaban.
-2. **Pusat Unduhan (Download Center):** Penyediaan akses untuk mengunduh dokumen Standar Operasional Prosedur (SOP) UKS, *checklist* kelengkapan inventaris, serta materi edukasi kesehatan.
-3. **Artikel Kesehatan Remaja:** Literasi kesehatan mengenai Perilaku Hidup Bersih dan Sehat (PHBS) serta panduan pertolongan pertama di sekolah.
+## Fitur Utama
+1. **Evaluasi Interaktif:** Modul kuis Penyakit Tidak Menular (PTM) yang dilengkapi dengan umpan balik sistematis berdasarkan bukti medis sebagai sarana pembelajaran mandiri bagi siswa SMP.
+2. **Dokumentasi Manajemen:** Penyediaan instrumen stratifikasi UKS untuk membantu pemetaan status fasilitas kesehatan sekolah.
+3. **Pusat Informasi Digital:** Akses terhadap materi edukasi kesehatan dan Standar Operasional Prosedur (SOP) UKS yang dapat diunduh guna mendukung implementasi manajemen UKS di lapangan.
 
-## 🛠️ Teknologi yang Digunakan
-* **Google Sites:** Digunakan sebagai Sistem Manajemen Konten (CMS) dan platform *hosting* utama website.
-* **HTML5, CSS3, Vanilla JavaScript:** Digunakan untuk membangun logika kuis, antarmuka (UI) yang modern, dan animasi interaktif.
-* **GitHub Pages:** Digunakan untuk *hosting* komponen *custom code* agar dapat disematkan (*embed by URL*) ke dalam platform Google Sites.
+## Spesifikasi Teknis
+* **Platform Utama:** Google Sites (Content Management System)
+* **Penyematan Kode:** HTML5, CSS3, dan JavaScript yang dihosting melalui GitHub Pages untuk menjamin ketersediaan fitur interaktif di dalam platform utama.
 
 ---
-*Didedikasikan untuk inovasi keperawatan dan promosi kesehatan di lingkungan sekolah.*
+*Proyek ini merupakan bagian dari komitmen terhadap pengembangan promosi kesehatan dan profesionalisme keperawatan di sektor komunitas sekolah.*
