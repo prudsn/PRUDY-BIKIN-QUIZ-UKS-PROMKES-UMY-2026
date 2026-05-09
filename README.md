@@ -10,7 +10,6 @@ Proyek ini dikembangkan dalam rangka pemenuhan tugas mata kuliah Praktik Klinik 
 * **Penyusun:** Prudysana Jatimikov
 * **Program Studi:** S1 Ilmu Keperawatan
 * **Institusi:** Universitas Muhammadiyah Yogyakarta (UMY)
-* **Topik Penugasan:** Inovasi Media Promosi Kesehatan Berbasis Digital dalam Lingkungan Sekolah
 
 ## Fitur Utama
 1. **Evaluasi Interaktif:** Modul kuis Penyakit Tidak Menular (PTM) yang dilengkapi dengan umpan balik sistematis berdasarkan bukti medis sebagai sarana pembelajaran mandiri bagi siswa SMP.
