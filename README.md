@@ -1,4 +1,4 @@
-# PRUDY-BIKIN-QUIZ-UKS-PROMKES-UMY-2026
+# QUIZ-UKS-PK-PROMKES-UMY'23-2026
 # Website Edukasi dan Manajemen UKS: Stratifikasi Tingkat Standar
 
 ## Deskripsi Proyek
