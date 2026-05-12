@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Bahaya Rokok & Vape</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f0; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  #quiz-wrap, #result-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2rem; }
+  .progress-bar-bg { height: 6px; background: #e0ddd6; border-radius: 99px; margin-bottom: 1.5rem; }
+  .progress-bar-fill { height: 6px; background: #1D9E75; border-radius: 99px; transition: width 0.4s ease; }
+  .q-badge { font-size: 12px; font-weight: 500; color: #888780; background: #f1efe8; padding: 3px 10px; border-radius: 99px; border: 0.5px solid #d3d1c7; display: inline-block; margin-bottom: 1rem; }
+  .q-text { font-size: 16px; font-weight: 500; color: #1a1a18; line-height: 1.6; margin-bottom: 1.5rem; }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+  .opt-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 12px; padding: 14px 16px; font-size: 15px; color: #1a1a18; text-align: left; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.1s; line-height: 1.5; display: flex; align-items: flex-start; gap: 10px; font-family: inherit; }
+  .opt-btn:hover:not(:disabled) { background: #f1efe8; border-color: #888780; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.99); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-letter { font-size: 12px; font-weight: 500; min-width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .opt-btn.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .opt-btn.wrong { background: #FCEBEB; border-color: #E24B4A; color: #A32D2D; }
+  .opt-btn.reveal-correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .feedback-box { border-radius: 12px; padding: 14px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem; display: none; border: 0.5px solid; }
+  .feedback-box.correct { background: #EAF3DE; border-color: #97C459; color: #27500A; }
+  .feedback-box.wrong { background: #FCEBEB; border-color: #F09595; color: #791F1F; }
+  .feedback-box.show { display: block; }
+  .feedback-title { font-weight: 500; font-size: 15px; margin-bottom: 6px; }
+  .next-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; display: none; align-items: center; gap: 6px; font-family: inherit; }
+  .next-btn.show { display: inline-flex; }
+  .next-btn:hover { background: #f1efe8; }
+  #result-screen { display: none; }
+  .result-card { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+  .result-score { font-size: 56px; font-weight: 600; color: #1a1a18; line-height: 1; }
+  .result-label { font-size: 14px; color: #888780; margin-top: 6px; }
+  .result-msg { font-size: 16px; color: #1a1a18; margin-top: 1rem; }
+  .recap-title { font-size: 14px; font-weight: 500; color: #888780; margin-bottom: 12px; }
+  .recap-item { border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
+  .recap-item .ri-q { font-weight: 500; color: #1a1a18; margin-bottom: 6px; }
+  .recap-item .ri-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .ri-tag { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; margin-top: 1px; }
+  .ri-tag.c { background: #C0DD97; color: #27500A; }
+  .ri-tag.w { background: #F7C1C1; color: #791F1F; }
+  .ri-ans { color: #1a1a18; }
+  .restart-btn { background: #fff; border: 0.5px solid #b4b2a9; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; font-family: inherit; margin-top: 1rem; }
+  .restart-btn:hover { background: #f1efe8; }
+  #intro-screen { max-width: 640px; width: 100%; background: #fff; border-radius: 16px; border: 1px solid #e0ddd6; padding: 2.5rem 2rem; text-align: center; }
+  .intro-icon { font-size: 48px; margin-bottom: 1.25rem; }
+  .intro-title { font-size: 22px; font-weight: 600; color: #1a1a18; margin-bottom: 0.75rem; }
+  .intro-desc { font-size: 15px; color: #5f5e5a; line-height: 1.7; margin-bottom: 0.75rem; }
+  .intro-meta { display: flex; justify-content: center; gap: 1.5rem; margin: 1.5rem 0; }
+  .intro-meta-item { font-size: 13px; color: #888780; display: flex; align-items: center; gap: 6px; }
+  .intro-meta-item span { font-weight: 500; color: #1a1a18; }
+  .start-btn { background: #1D9E75; border: none; border-radius: 8px; padding: 12px 32px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: inherit; margin-top: 0.5rem; }
+  .start-btn:hover { background: #0F6E56; }
+  .start-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<div id="intro-screen">
+  <div class="intro-icon">🚭</div>
+  <div class="intro-title">Quiz Bahaya Rokok & Vape</div>
+  <div class="intro-desc">Uji pengetahuanmu tentang bahaya merokok, efek samping vape, dan cara melindungi diri dari pergaulan yang salah.</div>
+  <div class="intro-meta">
+    <div class="intro-meta-item">📝 <span>10 soal</span></div>
+    <div class="intro-meta-item">✅ <span>Pilihan ganda</span></div>
+    <div class="intro-meta-item">💡 <span>Ada penjelasan tiap soal</span></div>
+  </div>
+  <button class="start-btn" onclick="startQuiz()">Mulai Kuis →</button>
+</div>
+
+<div id="quiz-wrap" style="display:none;">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog"></div></div>
+  <span class="q-badge" id="q-num">Soal 1 dari 10</span>
+  <div class="q-text" id="q-text"></div>
+  <div class="options" id="options"></div>
+  <div class="feedback-box" id="feedback">
+    <div class="feedback-title" id="fb-title"></div>
+    <div id="fb-body"></div>
+  </div>
+  <button class="next-btn" id="next-btn"></button>
+</div>
+
+<div id="result-screen">
+  <div class="result-card">
+    <div class="result-score" id="r-score"></div>
+    <div class="result-label">dari 10 soal benar</div>
+    <div class="result-msg" id="r-msg"></div>
+  </div>
+  <div class="recap-title">Rekap jawaban</div>
+  <div id="recap-list"></div>
+  <button class="restart-btn" onclick="restart()">&#8635; Ulangi quiz</button>
+</div>
+
+<script>
+const questions = [
+  { q: "1. Zat dalam rokok yang menyebabkan kecanduan adalah", opts: [ { text: "Tar", correct: false, reason: "Tar lebih banyak merusak paru-paru." }, { text: "Nikotin", correct: true, reason: "Nikotin membuat seseorang ketagihan atau kecanduan rokok." }, { text: "Oksigen", correct: false, reason: "Oksigen bukan zat penyebab kecanduan dalam rokok." } ] },
+  { q: "2. Berikut ini yang termasuk dampak merokok adalah", opts: [ { text: "Gigi menguning", correct: true, reason: "Rokok dapat membuat gigi menguning dan napas menjadi bau." }, { text: "Tubuh semakin sehat", correct: false, reason: "Merokok justru merusak kesehatan tubuh." }, { text: "Napas semakin segar", correct: false, reason: "Rokok menyebabkan bau mulut, bukan napas segar." } ] },
+  { q: "3. Orang yang menghirup asap rokok orang lain disebut", opts: [ { text: "Atlet", correct: false, reason: "Atlet adalah orang yang berolahraga." }, { text: "Perokok pasif", correct: true, reason: "Perokok pasif adalah orang yang terkena asap rokok meski tidak merokok." }, { text: "Perokok aktif", correct: false, reason: "Perokok aktif adalah orang yang merokok langsung." } ] },
+  { q: "4. Saat istirahat sekolah, Beni diajak temannya mencoba rokok agar dianggap keren. Apa yang sebaiknya dilakukan Beni?", opts: [ { text: "Ikut mencoba supaya tidak diejek", correct: false, reason: "Mengikuti ajakan teman hanya karena takut diejek dapat membuat seseorang mulai terbiasa merokok dan berisiko mengalami kecanduan." }, { text: "Mencoba satu kali saja karena penasaran", correct: false, reason: "Meskipun hanya mencoba sekali, rasa penasaran bisa membuat seseorang ingin mencoba lagi hingga akhirnya menjadi kebiasaan." }, { text: "Menolak dengan sopan dan menjauh dari ajakan tersebut", correct: true, reason: "Menolak dengan sopan menunjukkan bahwa Beni bisa menjaga dirinya sendiri dan tidak mudah terpengaruh lingkungan yang negatif." } ] },
+  { q: "5. Vape dianggap lebih aman oleh sebagian orang, padahal", opts: [ { text: "Tetap bisa menyebabkan kecanduan", correct: true, reason: "Vape tetap mengandung nikotin dan bahan kimia lain yang dapat menyebabkan kecanduan dan mengganggu kesehatan paru-paru." }, { text: "Tidak mengandung zat apa pun", correct: false, reason: "Cairan vape mengandung berbagai zat kimia yang tetap bisa berdampak buruk bagi tubuh." }, { text: "Aman digunakan setiap hari", correct: false, reason: "Penggunaan vape setiap hari tetap berisiko bagi kesehatan dan tidak bisa dianggap aman." } ] },
+  { q: "6. Apa yang bisa dilakukan agar tidak mudah terpengaruh ajakan merokok?", opts: [ { text: "Berani mengatakan “tidak” dan memilih pergaulan yang baik", correct: true, reason: "Berani menolak dan memilih lingkungan pertemanan yang positif dapat membantu menjaga kesehatan dan menghindari kebiasaan merokok." }, { text: "Mengikuti semua ajakan teman", correct: false, reason: "Mengikuti semua ajakan teman tanpa berpikir dapat membawa pengaruh buruk bagi diri sendiri." }, { text: "Mencoba merokok sesekali saja", correct: false, reason: "Mencoba sesekali tetap berbahaya karena dapat menjadi awal kebiasaan merokok." } ] },
+  { q: "7. Mengapa asap rokok berbahaya bagi orang sekitar?", opts: [ { text: "Karena asap rokok membuat udara menjadi dingin", correct: false, reason: "Asap rokok tidak berhubungan dengan perubahan suhu udara." }, { text: "Karena asap rokok mengandung zat kimia berbahaya yang dapat terhirup orang lain", correct: true, reason: "Asap rokok mengandung banyak zat berbahaya yang dapat menyebabkan gangguan kesehatan pada orang di sekitar, termasuk anak-anak dan keluarga." }, { text: "Karena asap rokok hanya mengganggu penciuman", correct: false, reason: "Dampak asap rokok bukan hanya bau, tetapi juga dapat merusak kesehatan tubuh orang lain." } ] },
+  { q: "8. Salah satu penyakit akibat merokok adalah", opts: [ { text: "Flu biasa", correct: false, reason: "Flu biasa dapat menyerang siapa saja dan bukan penyakit khusus akibat merokok." }, { text: "Rabun jauh", correct: false, reason: "Rabun jauh lebih berhubungan dengan gangguan penglihatan, bukan akibat utama dari merokok." }, { text: "Kanker paru", correct: true, reason: "Rokok dapat merusak paru-paru dalam jangka panjang dan meningkatkan risiko terkena kanker paru-paru." } ] },
+  { q: "9. Mengapa remaja sebaiknya menghindari rokok sejak dini?", opts: [ { text: "Karena rokok dapat menyebabkan kecanduan dan merusak kesehatan", correct: true, reason: "Rokok mengandung nikotin yang dapat menyebabkan kecanduan serta berbagai zat berbahaya yang dapat merusak paru-paru, jantung, dan kesehatan tubuh secara keseluruhan." }, { text: "Karena rokok membuat tubuh semakin kuat", correct: false, reason: "Rokok tidak membuat tubuh kuat, justru membuat tubuh lebih mudah lelah dan rentan sakit." }, { text: "Karena rokok membantu meningkatkan konsentrasi belajar", correct: false, reason: "Merokok tidak meningkatkan konsentrasi belajar dan justru dapat mengganggu kesehatan serta fokus belajar." } ] },
+  { q: "10. Jika seseorang mulai merokok sejak SMP dan menghabiskan Rp20.000 per hari untuk membeli rokok, menurutmu apa dampak yang paling mungkin terjadi di masa depan?", opts: [ { text: "Memiliki tubuh lebih sehat dan banyak teman", correct: false, reason: "Merokok tidak membuat tubuh lebih sehat. Pertemanan yang baik juga tidak ditentukan dari kebiasaan merokok." }, { text: "Kehilangan banyak uang dan berisiko mengalami gangguan kesehatan", correct: true, reason: "Jika uang Rp20.000 dihabiskan setiap hari untuk rokok, dalam setahun jumlahnya bisa mencapai jutaan rupiah. Selain merugikan secara ekonomi, kesehatan tubuh juga bisa terganggu akibat zat berbahaya dalam rokok." }, { text: "Menjadi lebih kuat dalam berolahraga", correct: false, reason: "Rokok justru membuat paru-paru dan tubuh lebih cepat lelah sehingga kemampuan olahraga dapat menurun." } ] }
+];
+
+const letters = ['A','B','C']; let current = 0, score = 0, answered = false, results = []; 
+function startQuiz() { document.getElementById('intro-screen').style.display = 'none'; document.getElementById('quiz-wrap').style.display = 'block'; render(); } 
+function render() { const q = questions[current]; document.getElementById('q-num').textContent = `Soal ${current+1} dari ${questions.length}`; document.getElementById('prog').style.width = `${(current/questions.length)*100}%`; document.getElementById('q-text').textContent = q.q; const optWrap = document.getElementById('options'); optWrap.innerHTML = ''; q.opts.forEach((o, i) => { const btn = document.createElement('button'); btn.className = 'opt-btn'; btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${o.text}</span>`; btn.onclick = () => select(i); optWrap.appendChild(btn); }); document.getElementById('feedback').className = 'feedback-box'; } 
+function select(index) { if (answered) return; answered = true; const q = questions[current]; const isCorrect = q.opts[index].correct; if (isCorrect) score++; const btns = document.querySelectorAll('.opt-btn'); btns[index].classList.add(isCorrect ? 'correct' : 'wrong'); q.opts.forEach((o, i) => { btns[i].disabled = true; if (o.correct && i !== index) { btns[i].classList.add('reveal-correct'); } }); const fb = document.getElementById('feedback'); fb.className = 'feedback-box show ' + (isCorrect ? 'correct' : 'wrong'); document.getElementById('fb-title').textContent = isCorrect ? '✅ Benar' : '❌ Salah'; document.getElementById('fb-body').textContent = q.opts[index].reason; const nextBtn = document.getElementById('next-btn'); nextBtn.textContent = current === questions.length - 1 ? 'Selesai ➔' : 'Selanjutnya ➔'; nextBtn.className = 'next-btn show'; nextBtn.onclick = () => { results.push({ q: q.q, correct: isCorrect, answer: q.opts[index].text, correctAnswer: q.opts.find(o => o.correct).text }); next(); }; } 
+function next() { answered = false; document.getElementById('next-btn').className = 'next-btn'; document.getElementById('feedback').className = 'feedback-box'; current++; if (current < questions.length) { render(); } else { finish(); } } 
+function finish() { document.getElementById('quiz-wrap').style.display = 'none'; document.getElementById('result-screen').style.display = 'block'; document.getElementById('r-score').textContent = score; const pct = (score / questions.length) * 100; let msg = ''; if (pct === 100) msg = 'Sempurna! Kamu sangat memahami isu kesehatan ini.'; else if (pct >= 80) msg = 'Bagus sekali! Pengetahuan kesehatanmu sudah cukup kuat.'; else if (pct >= 60) msg = 'Cukup baik! Masih ada beberapa hal yang perlu diperdalam.'; else if (pct >= 40) msg = 'Lumayan, tapi ayo pelajari lebih lanjut tentang kesehatan remaja!'; else msg = 'Jangan menyerah! Bacalah materi ini kembali dan coba lagi.'; document.getElementById('r-msg').textContent = msg; const recapList = document.getElementById('recap-list'); recapList.innerHTML = ''; results.forEach((r, i) => { const div = document.createElement('div'); div.className = 'recap-item'; div.innerHTML = `<div class="ri-q">Soal ${i+1}: ${r.q}</div><div class="ri-row"><span class="ri-tag ${r.correct ? 'c' : 'w'}">${r.correct ? 'Benar' : 'Salah'}</span><span class="ri-ans">Jawaban kamu: ${r.answer}</span></div>${!r.correct ? `<div class="ri-row"><span class="ri-tag c">Benar</span><span class="ri-ans">${r.correctAnswer}</span></div>` : ''}`; recapList.appendChild(div); }); } 
+function restart() { current = 0; score = 0; answered = false; results = []; document.getElementById('result-screen').style.display = 'none'; document.getElementById('intro-screen').style.display = 'block'; }
+</script>
+</body>
+</html>
